@@ -1,0 +1,16 @@
+{
+  "name": "postgres-extension",
+  "version": "1.0.0",
+  "description": "Interact with a Postgres database using SQL queries, table listing, and schema descriptions.",
+  "contextFileName": "GEMINI.md",
+  "mcpServers": {
+    "postgresServer": {
+      "command": "node",
+      "args": ["${extensionPath}${/}dist${/}index.js"],
+      "cwd": "${extensionPath}",
+      "env": {
+        "DATABASE_URL": ""
+      }
+    }
+  }
+}

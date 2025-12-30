@@ -1,0 +1,13 @@
+prompt = """
+Please investigate the schema of the table `{{args}}` using the `describe_table` tool.
+Analyze its columns, data types, and any primary or foreign key constraints.
+
+Based on this structural analysis, suggest 5 creative and valuable SQL queries or data analysis strategies that a user should perform to uncover interesting patterns, trends, or anomalies in this data.
+
+For each suggestion, provide:
+1. **Title**: A clear name for the insight.
+2. **Rationale**: Why this specific analysis is valuable for this dataset.
+3. **Draft SQL**: A ready-to-run SQL query template.
+
+Always prioritize insights that reveal correlations or performance metrics if applicable.
+"""

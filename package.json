@@ -1,0 +1,21 @@
+{
+  "name": "postgres-extension",
+  "version": "1.0.0",
+  "description": "Postgres MCP Server for Gemini CLI Extension",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.25",
+    "@types/pg": "^8.16.0",
+    "typescript": "~5.4.5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.23.0",
+    "pg": "^8.16.3",
+    "zod": "^3.22.4"
+  }
+}
