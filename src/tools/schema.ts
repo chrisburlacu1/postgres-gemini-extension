@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { pool, schemaCache } from '../database.js';
+import { formatRows } from '../utils/format.js';
 
 export function registerSchemaTools(server: McpServer) {
   server.registerTool(
@@ -22,7 +23,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(result.rows),
+              text: formatRows(result.rows),
             },
           ],
         };
@@ -56,7 +57,7 @@ export function registerSchemaTools(server: McpServer) {
             content: [
               {
                 type: 'text',
-                text: JSON.stringify(schemaCache.get(table_name)),
+                text: formatRows(schemaCache.get(table_name)),
               },
             ],
           };
@@ -77,7 +78,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(result.rows),
+              text: formatRows(result.rows),
             },
           ],
         };
@@ -128,7 +129,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(result.rows),
+              text: formatRows(result.rows),
             },
           ],
         };
@@ -169,7 +170,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(result.rows),
+              text: formatRows(result.rows),
             },
           ],
         };
@@ -201,7 +202,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(result.rows),
+              text: formatRows(result.rows),
             },
           ],
         };
@@ -238,7 +239,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(result.rows),
+              text: formatRows(result.rows),
             },
           ],
         };

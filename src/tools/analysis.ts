@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { pool } from '../database.js';
+import { formatRows } from '../utils/format.js';
 
 export function registerAnalysisTools(server: McpServer) {
   server.registerTool(
@@ -19,7 +20,7 @@ export function registerAnalysisTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(result.rows),
+              text: formatRows(result.rows),
             },
           ],
         };
@@ -70,7 +71,7 @@ export function registerAnalysisTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(result.rows),
+              text: formatRows(result.rows),
             },
           ],
         };
@@ -104,7 +105,7 @@ export function registerAnalysisTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(result.rows),
+              text: formatRows(result.rows),
             },
           ],
         };
