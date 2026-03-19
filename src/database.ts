@@ -9,9 +9,6 @@ export const pool = new Pool({
   connectionString,
 });
 
-// Simple in-memory cache for schema lookups
-export const schemaCache = new Map<string, any>();
-
 export async function query(text: string, params?: any[]) {
   try {
     const res = await pool.query(text, params);

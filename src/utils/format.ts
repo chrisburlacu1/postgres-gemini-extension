@@ -21,7 +21,9 @@ export function formatToMarkdownTable(rows: any[]): string {
   return `${header}\n${separator}\n${body}`;
 }
 
-export function formatRows(rows: any[], maxRows: number = 50): string {
+export const CHARACTER_LIMIT = 30000;
+
+export function formatRows(rows: any[], maxRows: number = 100): string {
   if (!rows || rows.length === 0) return "No results found.";
 
   let outputText = "";
@@ -29,9 +31,14 @@ export function formatRows(rows: any[], maxRows: number = 50): string {
   if (rows.length > maxRows) {
     const truncatedRows = rows.slice(0, maxRows);
     outputText = formatToMarkdownTable(truncatedRows);
-    outputText += `\n\n*(Note: Result truncated. Showing ${maxRows} of ${rows.length} rows)*`;
+    outputText += `\n\n*(Note: Result truncated to first ${maxRows} rows)*`;
   } else {
     outputText = formatToMarkdownTable(rows);
+  }
+
+  // Final safety check for character limit
+  if (outputText.length > CHARACTER_LIMIT) {
+    outputText = outputText.substring(0, CHARACTER_LIMIT) + "... [Truncated due to response size limit]";
   }
 
   return outputText;

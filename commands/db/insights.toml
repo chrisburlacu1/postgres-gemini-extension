@@ -1,6 +1,7 @@
 prompt = """
-Please investigate the schema of the table `{{args}}` using the `describe_table` tool.
+Please investigate the schema of the table `{{args}}` using the `postgres_describe_table` tool.
 Analyze its columns, data types, and any primary or foreign key constraints.
+"""
 
 Based on this structural analysis, suggest 5 creative and valuable SQL queries or data analysis strategies that a user should perform to uncover interesting patterns, trends, or anomalies in this data.
 

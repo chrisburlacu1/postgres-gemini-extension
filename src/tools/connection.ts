@@ -4,10 +4,17 @@ import { checkConnection } from '../database.js';
 
 export function registerConnectionTools(server: McpServer) {
   server.registerTool(
-    'check_connection',
+    'postgres_check_connection',
     {
-      description: 'Verifies the database connection and returns status.',
+      title: 'Check Postgres Connection',
+      description: 'Verifies the database connection, performs a simple query test, and returns the current user and their permissions.',
       inputSchema: z.object({}).shape,
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
     },
     async () => {
       const status = await checkConnection();
@@ -16,7 +23,7 @@ export function registerConnectionTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: 'Successfully connected to the database.',
+              text: `Successfully connected to the database as user '${status.user.current_user}'. Superuser status: ${status.user.is_superuser}.`,
             },
           ],
         };

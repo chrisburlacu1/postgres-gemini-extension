@@ -1,4 +1,4 @@
-# Implement get_database_schema_erd Plan
+# Implement get_database_schema_erd Plan (COMPLETED)
 
 ## Objective
 Provide an efficient, holistic way for the AI agent to understand how all tables in the Postgres database are connected. The goal is to avoid repetitive `show_constraints` or `describe_table` tool calls by generating a dense, easily parsed Mermaid Entity-Relationship Diagram (ERD).

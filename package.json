@@ -1,5 +1,5 @@
 {
-  "name": "postgres-extension",
+  "name": "postgres-mcp-server",
   "version": "1.0.0",
   "description": "Postgres MCP Server for Gemini CLI Extension",
   "type": "module",

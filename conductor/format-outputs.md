@@ -1,4 +1,4 @@
-# Format Outputs and Truncate Rows Plan
+# Format Outputs and Truncate Rows Plan (COMPLETED)
 
 ## Background & Motivation
 Currently, the Postgres MCP server returns database query results and schema information as raw stringified JSON arrays. This wastes context window tokens on repeated JSON keys and is harder for the AI agent to parse. Furthermore, queries that return thousands of rows can overwhelm the agent's context window or crash the server.
