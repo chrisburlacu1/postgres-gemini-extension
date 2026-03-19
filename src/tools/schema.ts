@@ -256,4 +256,64 @@ export function registerSchemaTools(server: McpServer) {
       }
     },
   );
+
+  server.registerTool(
+    'get_database_schema_erd',
+    {
+      description: 'Generates a Mermaid ERD (Entity Relationship Diagram) representing the database schema connections.',
+      inputSchema: z.object({}).shape,
+    },
+    async () => {
+      try {
+        const sql = `
+          SELECT
+              tc.table_name AS source_table,
+              kcu.column_name AS source_column,
+              ccu.table_name AS target_table,
+              ccu.column_name AS target_column
+          FROM information_schema.table_constraints tc
+          JOIN information_schema.key_column_usage kcu
+              ON tc.constraint_name = kcu.constraint_name
+              AND tc.table_schema = kcu.table_schema
+          JOIN information_schema.constraint_column_usage ccu
+              ON ccu.constraint_name = tc.constraint_name
+              AND ccu.table_schema = tc.table_schema
+          WHERE tc.constraint_type = 'FOREIGN KEY'
+              AND tc.table_schema = 'public';
+        `;
+        const result = await pool.query(sql);
+        
+        if (result.rows.length === 0) {
+          return {
+            content: [{ type: 'text', text: 'No relationships found in the database.' }],
+          };
+        }
+
+        let mermaid = '```mermaid\nerDiagram\n';
+        for (const row of result.rows) {
+          mermaid += `    ${row.target_table} ||--o{ ${row.source_table} : "${row.target_column} -> ${row.source_column}"\n`;
+        }
+        mermaid += '```';
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: mermaid,
+            },
+          ],
+        };
+      } catch (error: any) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error generating ERD: ${error.message}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    },
+  );
 }
