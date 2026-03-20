@@ -16,6 +16,11 @@ A Model Context Protocol (MCP) server that allows AI agents to interact with Pos
 
 All tools are prefixed with `postgres_` to avoid conflicts in multi-server environments.
 
+### Data Exploration Tools
+
+- `postgres_preview_table(table_name, schema?, limit?)`: Quickly fetches a sample of rows from a specific table to understand its data shape without writing a manual SELECT query.
+- `postgres_global_search(search_term, schema?)`: Searches across all character-based columns (VARCHAR, TEXT) in all tables for a specific string value. Extremely useful for finding where an email, ID, or name is used across the entire database.
+
 ### Query Tools
 
 - `postgres_execute_query(sql)`: Executes a non-destructive SQL query.

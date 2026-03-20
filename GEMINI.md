@@ -54,6 +54,7 @@ Example: `DATABASE_URL=postgres://user:password@localhost:5432/dbname`
 
 ## Key Features & Tools
 The extension provides several tools categorized as follows (all prefixed with `postgres_`):
+- **Data Exploration:** `preview_table`, `global_search`
 - **Query:** `execute_query`
 - **Schema Discovery:** `list_databases`, `list_schemas`, `list_tables`, `list_views`, `describe_table`, `search_schema`, `get_database_schema_erd`, `clear_cache`
 - **Performance/Analysis:** `get_table_stats`, `show_indexes`, `show_constraints`, `explain_query`
