@@ -35,6 +35,8 @@ All tools are prefixed with `postgres_` to avoid conflicts in multi-server envir
 - `postgres_search_schema(pattern, schema?)`: Fuzzy search for tables and columns across schemas.
 - `postgres_get_table_stats(schema?)`: Shows row counts and disk usage for tables and indexes.
 - `postgres_get_database_schema_erd(schema?, include_columns?)`: Generates a Mermaid ERD.
+- `postgres_get_table_relationships(table_name, schema?)`: Finds immediate neighbors of a table via foreign keys.
+- `postgres_find_join_path(source_table, target_table, schema?)`: Discovers how to connect two tables via foreign key graph.
 - `postgres_clear_cache()`: Manually clears the in-memory metadata cache.
 
 ### Analysis Tools
