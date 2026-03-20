@@ -21,6 +21,7 @@ All tools are prefixed with `postgres_` to avoid conflicts in multi-server envir
 - `postgres_preview_table(table_name, schema?, limit?)`: Quickly fetches a sample of rows from a specific table to understand its data shape without writing a manual SELECT query.
 - `postgres_global_search(search_term, schema?)`: Searches across all character-based columns (VARCHAR, TEXT) in all tables for a specific string value. Extremely useful for finding where an email, ID, or name is used across the entire database.
 - `postgres_profile_column(table_name, column_name, schema?)`: Analyzes a specific column to determine its shape (min/max/avg for numbers, distinct values for strings, null percentage).
+- `postgres_get_entity_graph(table_name, primary_key_value, schema?)`: Provides a complete 360-degree view of a specific record by resolving its primary key and automatically querying all related child records via incoming foreign keys.
 
 ### Query Tools
 
