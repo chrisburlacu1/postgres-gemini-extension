@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { pool } from '../database.js';
 import { schemaCache } from '../utils/cache.js';
-import { formatRows } from '../utils/format.js';
+import { formatResponse } from '../utils/format.js';
 
 export function registerSchemaTools(server: McpServer) {
   server.registerTool(
@@ -42,7 +42,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: response_format === 'json' ? JSON.stringify(schemas, null, 2) : formatRows(schemas),
+              text: formatResponse(schemas, response_format),
             },
           ],
         };
@@ -101,7 +101,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: response_format === 'json' ? JSON.stringify(tables, null, 2) : formatRows(tables),
+              text: formatResponse(tables, response_format),
             },
           ],
         };
@@ -158,7 +158,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: response_format === 'json' ? JSON.stringify(columns, null, 2) : formatRows(columns),
+              text: formatResponse(columns, response_format),
             },
           ],
         };
@@ -235,7 +235,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: response_format === 'json' ? JSON.stringify(result.rows, null, 2) : formatRows(result.rows),
+              text: formatResponse(result.rows, response_format),
             },
           ],
         };
@@ -289,7 +289,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: response_format === 'json' ? JSON.stringify(result.rows, null, 2) : formatRows(result.rows),
+              text: formatResponse(result.rows, response_format),
             },
           ],
         };
@@ -339,7 +339,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: response_format === 'json' ? JSON.stringify(databases, null, 2) : formatRows(databases),
+              text: formatResponse(databases, response_format),
             },
           ],
         };
@@ -395,7 +395,7 @@ export function registerSchemaTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: response_format === 'json' ? JSON.stringify(views, null, 2) : formatRows(views),
+              text: formatResponse(views, response_format),
             },
           ],
         };
@@ -484,7 +484,7 @@ export function registerSchemaTools(server: McpServer) {
           schemaCache.set(cacheKey, relationships);
         }
 
-        let mermaid = '```mermaid\nerDiagram\n';
+        let mermaid = '```mermaid\n';
 
         if (include_columns) {
           const colCacheKey = `erd_columns:${schema}`;

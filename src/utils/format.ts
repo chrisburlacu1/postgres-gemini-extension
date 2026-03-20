@@ -43,3 +43,17 @@ export function formatRows(rows: any[], maxRows: number = 100): string {
 
   return outputText;
 }
+
+/**
+ * Helper to format a result set based on the requested format (json or markdown).
+ */
+export function formatResponse(
+  rows: any[], 
+  format: 'markdown' | 'json' = 'markdown', 
+  maxRows: number = 100
+): string {
+  if (format === 'json') {
+    return JSON.stringify(rows, null, 2);
+  }
+  return formatRows(rows, maxRows);
+}

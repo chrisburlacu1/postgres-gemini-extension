@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { pool } from '../database.js';
-import { formatRows } from '../utils/format.js';
+import { formatRows, formatResponse } from '../utils/format.js';
 
 export function registerExplorationTools(server: McpServer) {
   server.registerTool(
@@ -34,7 +34,7 @@ export function registerExplorationTools(server: McpServer) {
           content: [
             {
               type: 'text',
-              text: response_format === 'json' ? JSON.stringify(result.rows, null, 2) : formatRows(result.rows, limit),
+              text: formatResponse(result.rows, response_format, limit),
             },
           ],
         };
