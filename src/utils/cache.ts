@@ -30,4 +30,4 @@ export class TTLCache<T> {
 }
 
 // TTL cache for schema and structural metadata lookups
-export const schemaCache = new TTLCache<any[]>();
+export const schemaCache = new TTLCache<any>();

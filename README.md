@@ -20,6 +20,7 @@ All tools are prefixed with `postgres_` to avoid conflicts in multi-server envir
 
 - `postgres_preview_table(table_name, schema?, limit?)`: Quickly fetches a sample of rows from a specific table to understand its data shape without writing a manual SELECT query.
 - `postgres_global_search(search_term, schema?)`: Searches across all character-based columns (VARCHAR, TEXT) in all tables for a specific string value. Extremely useful for finding where an email, ID, or name is used across the entire database.
+- `postgres_profile_column(table_name, column_name, schema?)`: Analyzes a specific column to determine its shape (min/max/avg for numbers, distinct values for strings, null percentage).
 
 ### Query Tools
 
@@ -27,11 +28,13 @@ All tools are prefixed with `postgres_` to avoid conflicts in multi-server envir
 
 ### Schema Tools
 
+- `postgres_get_schema_overview(schema?)`: Provides a high-density overview of a schema including all tables, primary keys, and approximate row counts.
 - `postgres_list_databases()`: Lists all non-template databases.
 - `postgres_list_schemas()`: Lists all schemas in the current database.
 - `postgres_list_tables(schema?)`: Lists all tables in a specific schema (defaults to `public`).
 - `postgres_list_views(schema?)`: Lists all views in a specific schema (defaults to `public`).
 - `postgres_describe_table(table_name, schema?)`: Shows columns, data types, and nullability.
+- `postgres_get_table_ddl(table_name, schema?)`: Reconstructs a simplified CREATE TABLE statement for an agent to easily understand a table.
 - `postgres_search_schema(pattern, schema?)`: Fuzzy search for tables and columns across schemas.
 - `postgres_get_table_stats(schema?)`: Shows row counts and disk usage for tables and indexes.
 - `postgres_get_database_schema_erd(schema?, include_columns?)`: Generates a Mermaid ERD.

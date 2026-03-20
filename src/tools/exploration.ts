@@ -144,4 +144,103 @@ export function registerExplorationTools(server: McpServer) {
       }
     },
   );
+
+  server.registerTool(
+    'postgres_profile_column',
+    {
+      title: 'Profile Column',
+      description: 'Analyzes a specific column to determine its shape (min/max/avg for numbers, distinct values for strings, null percentage).',
+      inputSchema: z.object({
+        table_name: z.string().describe('The name of the table'),
+        column_name: z.string().describe('The name of the column to profile'),
+        schema: z.string().optional().default('public').describe('The schema the table belongs to'),
+        response_format: z.enum(['markdown', 'json']).optional().default('markdown').describe('Output format for the results'),
+      }).shape,
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+    },
+    async ({ table_name, column_name, schema, response_format }) => {
+      try {
+        const typeSql = `
+          SELECT data_type 
+          FROM information_schema.columns 
+          WHERE table_name = $1 AND column_name = $2 AND table_schema = $3;
+        `;
+        const typeResult = await pool.query(typeSql, [table_name, column_name, schema]);
+        
+        if (typeResult.rows.length === 0) {
+            return { content: [{ type: 'text', text: `Column not found.` }], isError: true };
+        }
+        
+        const dataType = typeResult.rows[0].data_type;
+        const safeSchema = '"' + schema.replaceAll('"', '""') + '"';
+        const safeTable = '"' + table_name.replaceAll('"', '""') + '"';
+        const safeColumn = '"' + column_name.replaceAll('"', '""') + '"';
+
+        let profileData: any = { data_type: dataType };
+        
+        const nullSql = `
+            SELECT COUNT(*) as total_rows, 
+                   COUNT(CASE WHEN ${safeColumn} IS NULL THEN 1 END) as null_count
+            FROM ${safeSchema}.${safeTable};
+        `;
+        const nullResult = await pool.query(nullSql);
+        const totalRows = parseInt(nullResult.rows[0].total_rows);
+        const nullCount = parseInt(nullResult.rows[0].null_count);
+        profileData.null_percentage = totalRows > 0 ? (nullCount / totalRows * 100).toFixed(2) + '%' : '0%';
+
+        if (['integer', 'bigint', 'smallint', 'numeric', 'decimal', 'real', 'double precision'].includes(dataType)) {
+            const statsSql = `
+                SELECT MIN(${safeColumn}) as min_val, 
+                       MAX(${safeColumn}) as max_val, 
+                       AVG(${safeColumn}::numeric) as avg_val
+                FROM ${safeSchema}.${safeTable};
+            `;
+            const statsResult = await pool.query(statsSql);
+            profileData = { ...profileData, ...statsResult.rows[0] };
+        } else if (['character varying', 'text', 'character'].includes(dataType)) {
+             const distinctSql = `
+                SELECT ${safeColumn} as val, COUNT(*) as count 
+                FROM ${safeSchema}.${safeTable} 
+                WHERE ${safeColumn} IS NOT NULL 
+                GROUP BY ${safeColumn} 
+                ORDER BY count DESC 
+                LIMIT 10;
+            `;
+            const distinctResult = await pool.query(distinctSql);
+            profileData.top_values = distinctResult.rows;
+        }
+
+        if (response_format === 'json') {
+          return { content: [{ type: 'text', text: JSON.stringify(profileData, null, 2) }] };
+        }
+
+        let markdown = `### Column Profile: ${column_name}\n`;
+        markdown += `- **Data Type:** ${profileData.data_type}\n`;
+        markdown += `- **Null Percentage:** ${profileData.null_percentage}\n`;
+        if (profileData.min_val !== undefined) {
+           markdown += `- **Min Value:** ${profileData.min_val}\n`;
+           markdown += `- **Max Value:** ${profileData.max_val}\n`;
+           markdown += `- **Avg Value:** ${profileData.avg_val}\n`;
+        }
+        if (profileData.top_values) {
+           markdown += `\n#### Top Values\n`;
+           markdown += formatResponse(profileData.top_values, 'markdown');
+        }
+
+        return {
+          content: [{ type: 'text', text: markdown }],
+        };
+      } catch (error: any) {
+        return {
+          content: [{ type: 'text', text: `Error profiling column: ${error.message}` }],
+          isError: true,
+        };
+      }
+    },
+  );
 }

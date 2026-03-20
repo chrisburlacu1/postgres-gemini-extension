@@ -737,4 +737,120 @@ export function registerSchemaTools(server: McpServer) {
       }
     },
   );
+
+  server.registerTool(
+    'postgres_get_schema_overview',
+    {
+      title: 'Get Schema Overview',
+      description: 'Provides a high-density overview of a schema including all tables, their primary keys, and approximate row counts. Best for initial orientation.',
+      inputSchema: z.object({
+        schema: z.string().optional().default('public').describe('The schema to summarize'),
+        response_format: z.enum(['markdown', 'json']).optional().default('markdown').describe('Output format for the results'),
+      }).shape,
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+    },
+    async ({ schema, response_format }) => {
+      try {
+        const cacheKey = `schema_overview:${schema}`;
+        let overview;
+        if (schemaCache.has(cacheKey)) {
+          overview = schemaCache.get(cacheKey)!;
+        } else {
+          const sql = `
+            SELECT 
+                t.table_name,
+                (SELECT string_agg(kcu.column_name, ', ') 
+                 FROM information_schema.table_constraints tc
+                 JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
+                 WHERE tc.table_name = t.table_name AND tc.table_schema = t.table_schema AND tc.constraint_type = 'PRIMARY KEY'
+                ) as primary_keys,
+                c.reltuples::bigint AS estimated_rows
+            FROM information_schema.tables t
+            JOIN pg_class c ON c.relname = t.table_name
+            JOIN pg_namespace n ON n.oid = c.relnamespace AND n.nspname = t.table_schema
+            WHERE t.table_schema = $1 AND t.table_type = 'BASE TABLE'
+            ORDER BY t.table_name;
+          `;
+          const result = await pool.query(sql, [schema]);
+          overview = result.rows;
+          schemaCache.set(cacheKey, overview);
+        }
+
+        return {
+          content: [{ type: 'text', text: formatResponse(overview, response_format) }],
+        };
+      } catch (error: any) {
+        return {
+          content: [{ type: 'text', text: `Error getting schema overview: ${error.message}` }],
+          isError: true,
+        };
+      }
+    },
+  );
+
+  server.registerTool(
+    'postgres_get_table_ddl',
+    {
+      title: 'Get Table DDL',
+      description: 'Reconstructs a simplified CREATE TABLE statement for an agent to easily understand the full schema of a single table.',
+      inputSchema: z.object({
+        table_name: z.string().describe('The name of the table'),
+        schema: z.string().optional().default('public').describe('The schema the table belongs to'),
+      }).shape,
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+    },
+    async ({ table_name, schema }) => {
+      try {
+        const cacheKey = `ddl:${schema}.${table_name}`;
+        let ddl = '';
+        if (schemaCache.has(cacheKey)) {
+          ddl = schemaCache.get(cacheKey)!;
+        } else {
+          const colSql = `
+            SELECT column_name, data_type, is_nullable, column_default
+            FROM information_schema.columns
+            WHERE table_name = $1 AND table_schema = $2
+            ORDER BY ordinal_position;
+          `;
+          const colResult = await pool.query(colSql, [table_name, schema]);
+          
+          if (colResult.rows.length === 0) {
+             return { content: [{ type: 'text', text: `Table ${schema}.${table_name} not found or has no columns.` }] };
+          }
+
+          let statement = `CREATE TABLE ${schema}.${table_name} (\n`;
+          const colDefs = colResult.rows.map(col => {
+            let def = `  ${col.column_name} ${col.data_type}`;
+            if (col.is_nullable === 'NO') def += ' NOT NULL';
+            if (col.column_default) def += ` DEFAULT ${col.column_default}`;
+            return def;
+          });
+          
+          statement += colDefs.join(',\n');
+          statement += '\n);';
+          ddl = statement;
+          schemaCache.set(cacheKey, ddl);
+        }
+
+        return {
+          content: [{ type: 'text', text: '\`\`\`sql\n' + ddl + '\n\`\`\`' }],
+        };
+      } catch (error: any) {
+        return {
+          content: [{ type: 'text', text: `Error generating DDL: ${error.message}` }],
+          isError: true,
+        };
+      }
+    },
+  );
 }
